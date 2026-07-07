@@ -30,6 +30,9 @@
         <loc>https://hytomz.dev/projects/</loc>
     </url>
     <url>
+        <loc>https://hytomz.dev/search-index.json/</loc>
+    </url>
+    <url>
         <loc>https://hytomz.dev/tags/</loc>
     </url>
     <url>

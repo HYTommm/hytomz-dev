@@ -31,7 +31,12 @@
     <div class="content">
         
 <section class="main" style="max-width: 800px; margin: 0 auto;">
-    <h1>博客</h1>
+    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #14867d; padding-bottom: 10px; margin-bottom: 12px; margin-top: 1.5em;">
+        <h1 style="margin: 0; border-bottom: none; padding-bottom: 0; margin-top: 0;">博客</h1>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="搜索…" autocomplete="off">
+        </div>
+    </div>
 
     
     
@@ -126,7 +131,10 @@
         
         <article class="blog-post-preview"
                  data-cat="技术"
-                 data-tags="技术,Godot,C++">
+                 data-tags="技术,Godot,C++"
+                 data-title="移除 C++ 异常：swf_reader 移植中的 -fno-exceptions 兼容"
+                 data-url="/blog/技术/remove-exceptions/"
+                 >
             <h2><a href="/blog/技术/remove-exceptions/">移除 C++ 异常：swf_reader 移植中的 -fno-exceptions 兼容</a></h2>
             <div class="blog-meta">
                 <time>2026-07-07</time>
@@ -152,7 +160,10 @@
         
         <article class="blog-post-preview"
                  data-cat="公告"
-                 data-tags="公告">
+                 data-tags="公告"
+                 data-title="Hello World"
+                 data-url="/blog/公告/hello-world/"
+                 >
             <h2><a href="/blog/公告/hello-world/">Hello World</a></h2>
             <div class="blog-meta">
                 <time>2026-07-07</time>
@@ -181,12 +192,20 @@
 (function() {
     const catFilter = document.getElementById('catFilter');
     const tagFilter = document.getElementById('tagFilter');
+    const searchInput = document.getElementById('searchInput');
     const articles = document.querySelectorAll('#blogList .blog-post-preview');
     const emptyState = document.getElementById('emptyState');
+    let searchIndex = []; // loaded from /search-index.json
 
     if (!articles.length) return;
 
-    // 当前筛选状态（必须在 updateCounts 之前声明）
+    // 加载搜索索引
+    fetch('/search-index.json')
+        .then(r => r.json())
+        .then(data => { searchIndex = data; })
+        .catch(() => {}); // 静默失败，title/tag 搜索仍可用
+
+    // 当前筛选状态
     let activeCat = 'all';
     let activeTag = 'all';
 
@@ -201,11 +220,9 @@
         });
     });
 
-    // 初始更新计数（代替上面重复的统计逻辑）
     updateCounts();
 
     function updateCounts() {
-        // 按当前分类筛选重新统计标签数量
         const newTagCounts = {};
         let totalInCat = 0;
         articles.forEach(art => {
@@ -218,12 +235,10 @@
             });
         });
 
-        // 更新标签按钮数量
         if (tagFilter) {
             const allBtn = tagFilter.querySelector('[data-tag="all"]');
             allBtn.textContent = `所有标签 (${totalInCat})`;
             if (activeTag !== 'all' && !newTagCounts[activeTag]) {
-                // 当前选中的标签在分类下没有文章，重置
                 tagFilter.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
                 allBtn.classList.add('active');
                 activeTag = 'all';
@@ -236,7 +251,6 @@
             });
         }
 
-        // 更新分类按钮数量（不变，始终显示全局）
         if (catFilter) {
             catFilter.querySelectorAll('.tag-btn[data-cat]').forEach(btn => {
                 const cat = btn.dataset.cat;
@@ -249,17 +263,55 @@
         }
     }
 
-    function filterArticles(selectedCat, selectedTag) {
-        let visibleCount = 0;
+    function getSearchScore(art, query) {
+        if (!query) return -1;
+        const q = query.toLowerCase();
+        const title = (art.dataset.title || '').toLowerCase();
+        const tags = (art.dataset.tags || '').toLowerCase();
+        let score = 0;
+        if (title.includes(q)) score += 10;
+        if (tags.includes(q)) score += 5;
+        // 从搜索索引查正文
+        if (searchIndex.length > 0) {
+            const url = art.dataset.url;
+            const entry = searchIndex.find(e => e.url === url);
+            if (entry && entry.body && entry.body.toLowerCase().includes(q)) score += 1;
+        }
+        return score;
+    }
+
+    function filterArticles(selectedCat, selectedTag, searchQuery) {
+        const q = (searchQuery || '').trim();
+        const scored = [];
+
         articles.forEach(art => {
             const artCat = art.dataset.cat || '';
             const artTags = (art.dataset.tags || '').split(',').filter(Boolean);
             const catMatch = !selectedCat || selectedCat === 'all' || artCat === selectedCat;
             const tagMatch = !selectedTag || selectedTag === 'all' || artTags.includes(selectedTag);
-            const match = catMatch && tagMatch;
-            art.style.display = match ? '' : 'none';
-            if (match) visibleCount++;
+            if (!catMatch || !tagMatch) {
+                art.style.display = 'none';
+                return;
+            }
+            const score = getSearchScore(art, q);
+            if (q && score <= 0) {
+                art.style.display = 'none';
+                return;
+            }
+            scored.push({ el: art, score: score });
         });
+
+        if (q && scored.length > 1) {
+            scored.sort((a, b) => b.score - a.score);
+        }
+
+        const list = document.getElementById('blogList');
+        scored.forEach(item => {
+            item.el.style.display = '';
+            list.appendChild(item.el);
+        });
+
+        const visibleCount = scored.length;
         emptyState.style.display = visibleCount === 0 ? '' : 'none';
         updateCounts();
     }
@@ -272,13 +324,12 @@
             catFilter.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             activeCat = btn.dataset.cat;
-            // 重置标签筛选
             if (tagFilter) {
                 tagFilter.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
                 tagFilter.querySelector('[data-tag="all"]').classList.add('active');
             }
             activeTag = 'all';
-            filterArticles(activeCat, activeTag);
+            filterArticles(activeCat, activeTag, searchInput ? searchInput.value : '');
         });
     }
 
@@ -291,13 +342,34 @@
                 tagFilter.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 activeTag = 'all';
-                filterArticles(activeCat, activeTag);
+                filterArticles(activeCat, activeTag, searchInput ? searchInput.value : '');
                 return;
             }
             tagFilter.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             activeTag = btn.dataset.tag;
-            filterArticles(activeCat, activeTag);
+            filterArticles(activeCat, activeTag, searchInput ? searchInput.value : '');
+        });
+    }
+
+    // 搜索框
+    if (searchInput) {
+        let searchTimer;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
+                if (catFilter) {
+                    catFilter.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+                    catFilter.querySelector('[data-cat="all"]').classList.add('active');
+                }
+                if (tagFilter) {
+                    tagFilter.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+                    tagFilter.querySelector('[data-tag="all"]').classList.add('active');
+                }
+                activeCat = 'all';
+                activeTag = 'all';
+                filterArticles('all', 'all', this.value);
+            }, 200);
         });
     }
 })();
