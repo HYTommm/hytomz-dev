@@ -30,181 +30,181 @@
     </nav>
     <div class="content">
         
-<section class="main blog-main">
+
+
+
     
-    <div class="blog-header">
-        <h1 class="blog-title">博客</h1>
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="搜索…" autocomplete="off">
+    
+
+    
+    
+
+
+
+
+
+
+
+    
+        
+            
+        
+            
+        
+            
+        
+    
+
+    
+        
+            
+        
+    
+
+
+
+
+    
+        
+        
+    
+
+    
+        
+        
+    
+
+    
+        
+        
+    
+
+    
+        
+        
+    
+
+
+
+<div class="blog-layout">
+<aside class="blog-sidebar">
+    <div class="sidebar-section">
+        <h3 class="sidebar-title">分类</h3>
+        <div id="catFilter">
+            <div class="cat-btn active" data-cat="all">
+                <span>全部</span>
+                <span class="cat-count">2</span>
+            </div>
+            
+            
+            
+            <div class="cat-btn" data-cat="公告">
+                <span>公告</span>
+                <span class="cat-count">1</span>
+            </div>
+            
+            
+            
+            <div class="cat-btn" data-cat="技术">
+                <span>技术</span>
+                <span class="cat-count">1</span>
+            </div>
+            
         </div>
     </div>
 
     
-    
-    
-        
-        
-    
-        
-        
-    
-    
-
-    
-    
-    
-    
-        
+    <div class="sidebar-section">
+        <h3 class="sidebar-title">标签</h3>
+        <div class="tag-list" id="tagFilter">
+            <button class="tag-btn active" data-tag="all">所有标签</button>
             
-                
+            <button class="tag-btn" data-tag="技术">技术</button>
             
-                
+            <button class="tag-btn" data-tag="Godot">Godot</button>
             
-                
+            <button class="tag-btn" data-tag="C++">C++</button>
             
-        
-    
-        
+            <button class="tag-btn" data-tag="公告">公告</button>
             
-                
-            
-        
-    
-    
-    
-    
-        
-            
-            
-        
-    
-        
-            
-            
-        
-    
-        
-            
-            
-        
-    
-        
-            
-            
-        
-    
-
-    
-    <div class="blog-body">
-        <aside class="blog-sidebar">
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">分类</h3>
-                <div id="catFilter">
-                    <div class="cat-btn active" data-cat="all">
-                        <span>全部</span>
-                        <span class="cat-count">2</span>
-                    </div>
-                    
-                    
-                    
-                    <div class="cat-btn" data-cat="公告">
-                        <span>公告</span>
-                        <span class="cat-count">1</span>
-                    </div>
-                    
-                    
-                    
-                    <div class="cat-btn" data-cat="技术">
-                        <span>技术</span>
-                        <span class="cat-count">1</span>
-                    </div>
-                    
-                </div>
-            </div>
-
-            
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">标签</h3>
-                <div class="tag-list" id="tagFilter">
-                    <button class="tag-btn active" data-tag="all">所有标签</button>
-                    
-                    <button class="tag-btn" data-tag="技术">技术</button>
-                    
-                    <button class="tag-btn" data-tag="Godot">Godot</button>
-                    
-                    <button class="tag-btn" data-tag="C++">C++</button>
-                    
-                    <button class="tag-btn" data-tag="公告">公告</button>
-                    
-                </div>
-            </div>
-            
-        </aside>
-
-        <main class="blog-content">
-            <div id="blogList">
-                
-                
-                
-                
-                <article class="blog-post-preview"
-                         data-cat="技术"
-                         data-tags="技术,Godot,C++"
-                         data-title="移除 C++ 异常：swf_reader 移植中的 -fno-exceptions 兼容"
-                         data-url="/blog/技术/remove-exceptions/"
-                         >
-                    <h2><a href="/blog/技术/remove-exceptions/">移除 C++ 异常：swf_reader 移植中的 -fno-exceptions 兼容</a></h2>
-                    <div class="blog-meta">
-                        <time>2026-07-07</time>
-                        <span class="category-tag">技术</span>
-                        
-                        <span class="tags">
-                            
-                            <span class="tag">技术</span>
-                            
-                            <span class="tag">Godot</span>
-                            
-                            <span class="tag">C++</span>
-                            
-                        </span>
-                        
-                    </div>
-                    
-                    <a href="/blog/技术/remove-exceptions/" class="read-more">阅读全文 →</a>
-                </article>
-                
-                
-                
-                
-                <article class="blog-post-preview"
-                         data-cat="公告"
-                         data-tags="公告"
-                         data-title="Hello World"
-                         data-url="/blog/公告/hello-world/"
-                         >
-                    <h2><a href="/blog/公告/hello-world/">Hello World</a></h2>
-                    <div class="blog-meta">
-                        <time>2026-07-07</time>
-                        <span class="category-tag">公告</span>
-                        
-                        <span class="tags">
-                            
-                            <span class="tag">公告</span>
-                            
-                        </span>
-                        
-                    </div>
-                    
-                    <a href="/blog/公告/hello-world/" class="read-more">阅读全文 →</a>
-                </article>
-                
-            </div>
-            <p id="emptyState" class="empty-state" style="display: none;">没有匹配的文章</p>
-        </main>
+        </div>
     </div>
-
     
-</section>
+</aside>
+
+<div class="blog-page">
+    
+    <section class="main blog-main">
+        <div class="blog-header">
+            <h1 class="blog-title">博客</h1>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="搜索…" autocomplete="off">
+            </div>
+        </div>
+
+        <div id="blogList">
+            
+            
+            
+            
+            <article class="blog-post-preview"
+                     data-cat="技术"
+                     data-tags="技术,Godot,C++"
+                     data-title="移除 C++ 异常：swf_reader 移植中的 -fno-exceptions 兼容"
+                     data-url="/blog/技术/remove-exceptions/"
+                     >
+                <h2><a href="/blog/技术/remove-exceptions/">移除 C++ 异常：swf_reader 移植中的 -fno-exceptions 兼容</a></h2>
+                <div class="blog-meta">
+                    <time>2026-07-07</time>
+                    <span class="category-tag">技术</span>
+                    
+                    <span class="tags">
+                        
+                        <span class="tag">技术</span>
+                        
+                        <span class="tag">Godot</span>
+                        
+                        <span class="tag">C++</span>
+                        
+                    </span>
+                    
+                </div>
+                
+                <a href="/blog/技术/remove-exceptions/" class="read-more">阅读全文 →</a>
+            </article>
+            
+            
+            
+            
+            <article class="blog-post-preview"
+                     data-cat="公告"
+                     data-tags="公告"
+                     data-title="Hello World"
+                     data-url="/blog/公告/hello-world/"
+                     >
+                <h2><a href="/blog/公告/hello-world/">Hello World</a></h2>
+                <div class="blog-meta">
+                    <time>2026-07-07</time>
+                    <span class="category-tag">公告</span>
+                    
+                    <span class="tags">
+                        
+                        <span class="tag">公告</span>
+                        
+                    </span>
+                    
+                </div>
+                
+                <a href="/blog/公告/hello-world/" class="read-more">阅读全文 →</a>
+            </article>
+            
+        </div>
+        <p id="emptyState" class="empty-state" style="display: none;">没有匹配的文章</p>
+    </section>
+</div>
+
+
+</div>  
 
 <script>
 (function() {
@@ -331,7 +331,6 @@
         updateCounts();
     }
 
-    // 分类筛选
     if (catFilter) {
         catFilter.addEventListener('click', function(e) {
             const btn = e.target.closest('.cat-btn');
@@ -348,7 +347,6 @@
         });
     }
 
-    // 标签筛选
     if (tagFilter) {
         tagFilter.addEventListener('click', function(e) {
             const btn = e.target.closest('.tag-btn');
@@ -367,7 +365,6 @@
         });
     }
 
-    // 搜索框
     if (searchInput) {
         let searchTimer;
         searchInput.addEventListener('input', function() {
