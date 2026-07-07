@@ -80,6 +80,17 @@
     font-size: 0.85em;
 }
 
+/* 分类标签 */
+.category-tag {
+    display: inline-block;
+    background: #14867d15;
+    color: #14867d;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
 .blog-summary {
     color: #555;
     line-height: 1.7;

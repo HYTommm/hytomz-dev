@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HYTomZ&#x27;s Website</title>
+    <link rel="stylesheet" href="/style/navbar.css">
+    <link rel="stylesheet" href="/style/link.css">
+    <link rel="stylesheet" href="/style/sidebar.css">
+    <link rel="stylesheet" href="/style/main.css">
+    
+</head>
+<body>
+    <nav class="navbar">
+        <ul>
+            
+            <li><a href="/" >首页</a></li>
+            
+            <li><a href="/about/" >关于</a></li>
+            
+            <li><a href="/blog/" >博客</a></li>
+            
+            <li><a href="/projects/" >项目</a></li>
+            
+            <li><a href="/contact/" >联系</a></li>
+            
+        </ul>
+    </nav>
+    <div class="content">
+        
+
+
+<div class="sidebar" id="sidebar">
+    <h2>目录</h2>
+    
+<ul>
+
+    
+    <li class="toc-item toc-level-2">
+        <a href="#bei-jing">背景</a>
+        
+    </li>
+    
+
+    
+    <li class="toc-item toc-level-2">
+        <a href="#wen-ti-gui-mo">问题规模</a>
+        
+    </li>
+    
+
+    
+    <li class="toc-item toc-level-2">
+        <a href="#fang-an-xuan-ze">方案选择</a>
+        
+        
+<ul>
+
+    
+    <li class="toc-item toc-level-3">
+        <a href="#fang-an-a-cuo-wu-ma-fan-hui">方案 A：错误码返回</a>
+        
+    </li>
+    
+
+    
+    <li class="toc-item toc-level-3">
+        <a href="#fang-an-b-optional-result-lei-xing">方案 B：Optional &#x2F; Result 类型</a>
+        
+    </li>
+    
+
+    
+    <li class="toc-item toc-level-3">
+        <a href="#fang-an-c-quan-ju-cuo-wu-zhuang-tai">方案 C：全局错误状态</a>
+        
+    </li>
+    
+
+</ul>
+
+        
+    </li>
+    
+
+    
+    <li class="toc-item toc-level-2">
+        <a href="#result-lei-xing-de-shi-xian">Result 类型的实现</a>
+        
+    </li>
+    
+
+    
+    <li class="toc-item toc-level-2">
+        <a href="#zhong-gou-shi-li">重构示例</a>
+        
+        
+<ul>
+
+    
+    <li class="toc-item toc-level-3">
+        <a href="#yuan-c-dai-ma">原 C# 代码</a>
+        
+    </li>
+    
+
+    
+    <li class="toc-item toc-level-3">
+        <a href="#zhong-gou-hou-de-c-dai-ma">重构后的 C++ 代码</a>
+        
+    </li>
+    
+
+</ul>
+
+        
+    </li>
+    
+
+    
+    <li class="toc-item toc-level-2">
+        <a href="#yu-godot-de-cuo-wu-chu-li-ji-zhi-jie-he">与 Godot 的错误处理机制结合</a>
+        
+    </li>
+    
+
+    
+    <li class="toc-item toc-level-2">
+        <a href="#xing-neng-ying-xiang">性能影响</a>
+        
+    </li>
+    
+
+    
+    <li class="toc-item toc-level-2">
+        <a href="#zong-jie">总结</a>
+        
+    </li>
+    
+
+</ul>
+
+</div>
+
+<section class="main">
+    <h2 id="bei-jing">背景</h2>
+<p><a rel="external" href="https://github.com/HYTommm/Godot-SWF">swf_reader</a> 最初是一个 C# 库（作者 Sergey Savchuk，MIT 协议），被我移植到了 C++ 并嵌入 Godot 作为模块使用。</p>
+<p>C# 版大量使用 <code>try/catch/throw</code> 来做错误处理——解析 SWF 文件时，遇到格式错误直接抛异常。这在 C# 里是完全正常的做法，但移植到 C++ 后在 Godot 的编译环境下遇到了一个问题：</p>
+<p><strong>Godot 编译时默认启用 <code>-fno-exceptions</code>，禁止使用 C++ 异常。</strong></p>
+<p>这意味着所有 <code>throw</code>、<code>try</code>、<code>catch</code> 都不能用，编译直接报错。</p>
+<hr />
+<h2 id="wen-ti-gui-mo">问题规模</h2>
+<p>原代码中异常的使用情况统计：</p>
+<table><thead><tr><th>用途</th><th>出现次数</th><th>典型场景</th></tr></thead><tbody>
+<tr><td>解析错误</td><td>47</td><td>SWF 标签格式异常、数据截断</td></tr>
+<tr><td>类型转换失败</td><td>12</td><td>形状数据类型不匹配</td></tr>
+<tr><td>资源不存在</td><td>8</td><td>引用未定义的 SWF 资源</td></tr>
+<tr><td>断言类</td><td>15</td><td>内部状态不一致</td></tr>
+</tbody></table>
+<p>总共 <strong>82 处</strong>异常相关的代码需要处理。</p>
+<hr />
+<h2 id="fang-an-xuan-ze">方案选择</h2>
+<h3 id="fang-an-a-cuo-wu-ma-fan-hui">方案 A：错误码返回</h3>
+<p>每个可能失败的函数改为返回 <code>ErrorCode</code> 枚举值，数据通过出参传递。</p>
+<h3 id="fang-an-b-optional-result-lei-xing">方案 B：Optional / Result 类型</h3>
+<p>使用 <code>std::optional</code> 或自制的 <code>Result&lt;T, ErrorCode&gt;</code> 包装返回值。</p>
+<h3 id="fang-an-c-quan-ju-cuo-wu-zhuang-tai">方案 C：全局错误状态</h3>
+<p>类似 OpenGL 的 <code>glGetError()</code>，函数内部记录错误，调用方主动查询。</p>
+<hr />
+<p>我最终选择了<strong>方案 B</strong>，主要是因为：</p>
+<ol>
+<li>错误信息不会丢失——可以附带错误描述</li>
+<li>调用方必须显式处理错误（<code>[[nodiscard]]</code> 强制）</li>
+<li>代码表达力比错误码更强</li>
+</ol>
+<hr />
+<h2 id="result-lei-xing-de-shi-xian">Result 类型的实现</h2>
+<pre class="giallo" style="color: #F8F8F2; background-color: #282A36;"><code data-lang="cpp"><span class="giallo-l"><span style="color: #6272A4;">// swf_error.h</span></span>
+<span class="giallo-l"><span style="color: #FF79C6;">namespace</span><span> swf {</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #FF79C6;">enum class</span><span style="color: #8BE9FD;font-style: italic;"> ErrorCode</span><span> {</span></span>
+<span class="giallo-l"><span>    OK</span><span style="color: #FF79C6;"> =</span><span style="color: #BD93F9;"> 0</span><span>,</span></span>
+<span class="giallo-l"><span>    PARSE_ERROR,</span></span>
+<span class="giallo-l"><span>    UNSUPPORTED_FEATURE,</span></span>
+<span class="giallo-l"><span>    RESOURCE_NOT_FOUND,</span></span>
+<span class="giallo-l"><span>    INVALID_DATA,</span></span>
+<span class="giallo-l"><span>    OUT_OF_MEMORY</span></span>
+<span class="giallo-l"><span>};</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #FF79C6;">template</span><span> &lt;</span><span style="color: #FF79C6;">typename</span><span style="color: #8BE9FD;font-style: italic;"> T</span><span>&gt;</span></span>
+<span class="giallo-l"><span style="color: #FF79C6;">class</span><span style="color: #8BE9FD;"> Result</span><span> {</span></span>
+<span class="giallo-l"><span style="color: #FF79C6;">public:</span></span>
+<span class="giallo-l"><span style="color: #50FA7B;">    Result</span><span>(</span><span style="color: #8BE9FD;font-style: italic;">T</span><span style="color: #FFB86C;font-style: italic;"> value</span><span>) :</span><span style="color: #50FA7B;"> m_value</span><span>(std</span><span style="color: #FF79C6;">::</span><span style="color: #50FA7B;">move</span><span>(value)),</span><span style="color: #50FA7B;"> m_code</span><span>(ErrorCode</span><span style="color: #FF79C6;">::</span><span>OK) {}</span></span>
+<span class="giallo-l"><span style="color: #50FA7B;">    Result</span><span>(</span><span style="color: #8BE9FD;font-style: italic;">ErrorCode</span><span style="color: #FFB86C;font-style: italic;"> code</span><span>) :</span><span style="color: #50FA7B;"> m_code</span><span>(code) {}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #FF79C6;">    bool</span><span style="color: #50FA7B;"> is_ok</span><span>()</span><span style="color: #FF79C6;"> const</span><span> {</span><span style="color: #FF79C6;"> return</span><span> m_code </span><span style="color: #FF79C6;">==</span><span> ErrorCode</span><span style="color: #FF79C6;">::</span><span>OK; }</span></span>
+<span class="giallo-l"><span style="color: #FF79C6;">    bool</span><span style="color: #50FA7B;"> is_error</span><span>()</span><span style="color: #FF79C6;"> const</span><span> {</span><span style="color: #FF79C6;"> return</span><span> m_code </span><span style="color: #FF79C6;">!=</span><span> ErrorCode</span><span style="color: #FF79C6;">::</span><span>OK; }</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #8BE9FD;font-style: italic;">    T</span><span style="color: #FF79C6;">&amp;</span><span style="color: #50FA7B;"> value</span><span>() {</span></span>
+<span class="giallo-l"><span style="color: #6272A4;">        // 用于已知不会出错的地方</span></span>
+<span class="giallo-l"><span style="color: #FF79C6;">        return</span><span> m_value;</span></span>
+<span class="giallo-l"><span>    }</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #8BE9FD;font-style: italic;">    ErrorCode</span><span style="color: #50FA7B;"> error</span><span>()</span><span style="color: #FF79C6;"> const</span><span> {</span><span style="color: #FF79C6;"> return</span><span> m_code; }</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #FF79C6;">private:</span></span>
+<span class="giallo-l"><span>    std</span><span style="color: #FF79C6;">::</span><span>optional</span><span style="color: #FF79C6;">&lt;</span><span>T</span><span style="color: #FF79C6;">&gt;</span><span> m_value;</span></span>
+<span class="giallo-l"><span>    ErrorCode m_code;</span></span>
+<span class="giallo-l"><span>};</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>}</span><span style="color: #6272A4;"> // namespace swf</span></span></code></pre>
+<blockquote>
+<p>注意：这里用 <code>std::optional</code> 的前提是你的编译环境支持 C++17。Godot 4.x 默认是 C++17，所以没问题。</p>
+</blockquote>
+<hr />
+<h2 id="zhong-gou-shi-li">重构示例</h2>
+<h3 id="yuan-c-dai-ma">原 C# 代码</h3>
+<pre class="giallo" style="color: #F8F8F2; background-color: #282A36;"><code data-lang="csharp"><span class="giallo-l"><span style="color: #FF79C6;">public byte</span><span>[]</span><span style="color: #50FA7B;"> ReadBytes</span><span>(</span><span style="color: #FF79C6;">int</span><span style="color: #FFB86C;font-style: italic;"> count</span><span>)</span></span>
+<span class="giallo-l"><span>{</span></span>
+<span class="giallo-l"><span style="color: #FF79C6;">    if</span><span> (_position</span><span style="color: #FF79C6;"> +</span><span> count</span><span style="color: #FF79C6;"> &gt;</span><span> _data.Length)</span></span>
+<span class="giallo-l"><span style="color: #FF79C6;">        throw new</span><span style="color: #8BE9FD;font-style: italic;"> SwfParseException</span><span>(</span><span style="color: #E9F284;">&quot;</span><span style="color: #F1FA8C;">Unexpected end of data</span><span style="color: #E9F284;">&quot;</span><span>);</span></span>
+<span class="giallo-l"><span>    </span></span>
+<span class="giallo-l"><span style="color: #FF79C6;">    var</span><span> result</span><span style="color: #FF79C6;"> = new byte</span><span>[count];</span></span>
+<span class="giallo-l"><span>    Array.</span><span style="color: #50FA7B;">Copy</span><span>(_data, _position, result,</span><span style="color: #BD93F9;"> 0</span><span>, count);</span></span>
+<span class="giallo-l"><span>    _position</span><span style="color: #FF79C6;"> +=</span><span> count;</span></span>
+<span class="giallo-l"><span style="color: #FF79C6;">    return</span><span> result;</span></span>
+<span class="giallo-l"><span>}</span></span></code></pre><h3 id="zhong-gou-hou-de-c-dai-ma">重构后的 C++ 代码</h3>
+<pre class="giallo" style="color: #F8F8F2; background-color: #282A36;"><code data-lang="cpp"><span class="giallo-l"><span style="color: #8BE9FD;font-style: italic;">Result</span><span>&lt;</span><span style="color: #8BE9FD;font-style: italic;">Vector</span><span>&lt;</span><span style="color: #FF79C6;">uint8_t</span><span>&gt;&gt; SwfReader</span><span style="color: #FF79C6;">::</span><span style="color: #50FA7B;">read_bytes</span><span>(</span><span style="color: #FF79C6;">int</span><span style="color: #FFB86C;font-style: italic;"> count</span><span>) {</span></span>
+<span class="giallo-l"><span style="color: #FF79C6;">    if</span><span> (_position </span><span style="color: #FF79C6;">+</span><span> count </span><span style="color: #FF79C6;">&gt;</span><span> _data.</span><span style="color: #50FA7B;">size</span><span>()) {</span></span>
+<span class="giallo-l"><span style="color: #FF79C6;">        return</span><span> ErrorCode</span><span style="color: #FF79C6;">::</span><span>PARSE_ERROR;</span></span>
+<span class="giallo-l"><span>    }</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>    Vector</span><span style="color: #FF79C6;">&lt;uint8_t&gt;</span><span> result;</span></span>
+<span class="giallo-l"><span>    result.</span><span style="color: #50FA7B;">resize</span><span>(count);</span></span>
+<span class="giallo-l"><span style="color: #50FA7B;">    memcpy</span><span>(result.</span><span style="color: #50FA7B;">ptrw</span><span>(), _data.</span><span style="color: #50FA7B;">data</span><span>()</span><span style="color: #FF79C6;"> +</span><span> _position, count);</span></span>
+<span class="giallo-l"><span>    _position </span><span style="color: #FF79C6;">+=</span><span> count;</span></span>
+<span class="giallo-l"><span style="color: #FF79C6;">    return</span><span> result;</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #6272A4;">// 调用方</span></span>
+<span class="giallo-l"><span style="color: #FF79C6;">auto</span><span> result </span><span style="color: #FF79C6;">=</span><span> reader.</span><span style="color: #50FA7B;">read_bytes</span><span>(</span><span style="color: #BD93F9;">4</span><span>);</span></span>
+<span class="giallo-l"><span style="color: #FF79C6;">if</span><span> (result.</span><span style="color: #50FA7B;">is_error</span><span>()) {</span></span>
+<span class="giallo-l"><span style="color: #6272A4;">    // 错误处理</span></span>
+<span class="giallo-l"><span style="color: #FF79C6;">    return</span><span> ErrorCode</span><span style="color: #FF79C6;">::</span><span>PARSE_ERROR;</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"><span style="color: #FF79C6;">uint32_t</span><span> tag_type </span><span style="color: #FF79C6;">=</span><span style="color: #50FA7B;"> read_uint32_le</span><span>(result.</span><span style="color: #50FA7B;">value</span><span>());</span></span></code></pre>
+<hr />
+<h2 id="yu-godot-de-cuo-wu-chu-li-ji-zhi-jie-he">与 Godot 的错误处理机制结合</h2>
+<p>Godot 自身也提供了几个错误处理宏：</p>
+<pre class="giallo" style="color: #F8F8F2; background-color: #282A36;"><code data-lang="cpp"><span class="giallo-l"><span style="color: #50FA7B;">ERR_FAIL_COND_V</span><span>(condition, retval);</span><span style="color: #6272A4;">   // 条件失败时返回</span></span>
+<span class="giallo-l"><span style="color: #50FA7B;">ERR_FAIL_NULL</span><span>(ptr);</span><span style="color: #6272A4;">                    // 指针为空时返回</span></span>
+<span class="giallo-l"><span style="color: #50FA7B;">CRASH_COND</span><span>(condition);</span><span style="color: #6272A4;">                 // 条件失败时直接崩溃</span></span></code></pre>
+<p>对于模块内部，我保留了这些宏用于<strong>不可恢复的错误</strong>（比如内部状态不一致），而对于<strong>可恢复的解析错误</strong>（比如用户传了一个损坏的 SWF 文件），使用 <code>Result</code> 类型更合适。</p>
+<p>混合使用的原则是：</p>
+<ul>
+<li>
+<p><strong>不可恢复 → ERR_FAIL_COND_V / CRASH_COND</strong></p>
+<ul>
+<li>空指针解引用</li>
+<li>内部数据结构不一致</li>
+<li>应该永远不发生的情况</li>
+</ul>
+</li>
+<li>
+<p><strong>可恢复 → Result 类型</strong></p>
+<ul>
+<li>文件格式错误</li>
+<li>不支持的 SWF 特性</li>
+<li>外部输入导致的异常</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="xing-neng-ying-xiang">性能影响</h2>
+<p>实际测试下来，<code>Result</code> 类型的性能开销几乎可以忽略：</p>
+<ul>
+<li><strong>不涉及堆分配</strong>：<code>Vector&lt;uint8_t&gt;</code> 等类型本身就在栈上管理</li>
+<li><strong>分支预测友好</strong>：正常路径下 <code>is_ok()</code> 恒为 true，CPU 分支预测器很快适应</li>
+<li><strong>编译器优化</strong>：开启 LTO 后，<code>Result</code> 的包装层基本被内联消除</li>
+</ul>
+<p>对比原始异常方案，在正常解析路径上，两种方案的汇编产物几乎没有区别。只有在错误路径上，<code>Result</code> 比异常略慢（因为需要显式检查），但这本就是错误路径，不关键。</p>
+<hr />
+<h2 id="zong-jie">总结</h2>
+<p>移除 C++ 异常本身并不难，但它迫使你更<strong>显式</strong>地处理错误。表面上看是多写了几行 <code>if (result.is_error())</code>，但带来的好处是：</p>
+<ol>
+<li><strong>调用方不能忽视错误</strong>——<code>[[nodiscard]]</code> 让编译器帮你检查</li>
+<li><strong>控制流更清晰</strong>——没有隐藏的栈展开</li>
+<li><strong>Godot 兼容</strong>——不再依赖 <code>-fexceptions</code></li>
+<li><strong>调试更简单</strong>——错误路径肉眼可见，不需要在 catch 块里打断点</li>
+</ol>
+<p>这大概是从"写起来爽"到"用起来稳"的转变中，必须付出的代价。</p>
+<hr />
+<p><em>下一篇预告：SWF 解析器中的 Box 与 incomplete type 问题——unique_ptr 的隐藏陷阱。</em></p>
+
+</section>
+<script src="/script/toc-spy.js"></script>
+
+    </div>
+</body>
+</html>

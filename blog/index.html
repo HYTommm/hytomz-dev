@@ -36,18 +36,29 @@
     
     
     
+        
+        
+    
+        
+        
+    
+    
+
+    
+    
+    
     
         
             
                 
             
+                
+            
+                
+            
         
     
         
-            
-                
-            
-                
             
                 
             
@@ -78,10 +89,23 @@
     
 
     
-    <div class="tag-filter" id="tagFilter">
-        <button class="tag-btn active" data-tag="all">全部</button>
+    <div class="tag-filter" id="catFilter">
+        <button class="tag-btn active" data-cat="all">全部</button>
         
-        <button class="tag-btn" data-tag="公告">公告</button>
+            
+            
+            <button class="tag-btn" data-cat="公告">公告</button>
+        
+            
+            
+            <button class="tag-btn" data-cat="技术">技术</button>
+        
+    </div>
+
+    
+    
+    <div class="tag-filter" id="tagFilter" style="margin-top: 8px;">
+        <button class="tag-btn active" data-tag="all">所有标签</button>
         
         <button class="tag-btn" data-tag="技术">技术</button>
         
@@ -89,31 +113,24 @@
         
         <button class="tag-btn" data-tag="C++">C++</button>
         
+        <button class="tag-btn" data-tag="公告">公告</button>
+        
     </div>
+    
 
     
     <div id="blogList">
         
-        <article class="blog-post-preview" data-tags="公告">
-            <h2><a href="/blog/hello-world/">Hello World</a></h2>
-            <div class="blog-meta">
-                <time>2026-07-07</time>
-                
-                <span class="tags">
-                    
-                    <span class="tag">公告</span>
-                    
-                </span>
-                
-            </div>
-            
-            <a href="/blog/hello-world/" class="read-more">阅读全文 →</a>
-        </article>
         
-        <article class="blog-post-preview" data-tags="技术,Godot,C++">
-            <h2><a href="/blog/remove-exceptions/">移除 C++ 异常：swf_reader 移植中的 -fno-exceptions 兼容</a></h2>
+        
+        
+        <article class="blog-post-preview"
+                 data-cat="技术"
+                 data-tags="技术,Godot,C++">
+            <h2><a href="/blog/技术/remove-exceptions/">移除 C++ 异常：swf_reader 移植中的 -fno-exceptions 兼容</a></h2>
             <div class="blog-meta">
                 <time>2026-07-07</time>
+                <span class="category-tag">技术</span>
                 
                 <span class="tags">
                     
@@ -127,79 +144,137 @@
                 
             </div>
             
-            <a href="/blog/remove-exceptions/" class="read-more">阅读全文 →</a>
+            <a href="/blog/技术/remove-exceptions/" class="read-more">阅读全文 →</a>
+        </article>
+        
+        
+        
+        
+        <article class="blog-post-preview"
+                 data-cat="公告"
+                 data-tags="公告">
+            <h2><a href="/blog/公告/hello-world/">Hello World</a></h2>
+            <div class="blog-meta">
+                <time>2026-07-07</time>
+                <span class="category-tag">公告</span>
+                
+                <span class="tags">
+                    
+                    <span class="tag">公告</span>
+                    
+                </span>
+                
+            </div>
+            
+            <a href="/blog/公告/hello-world/" class="read-more">阅读全文 →</a>
         </article>
         
     </div>
 
     
-    <p id="emptyState" class="empty-state" style="display: none;">该分类下暂无文章</p>
-
-    
-    
+    <p id="emptyState" class="empty-state" style="display: none;">没有匹配的文章</p>
 
     
 </section>
 
 <script>
 (function() {
-    const filter = document.getElementById('tagFilter');
+    const catFilter = document.getElementById('catFilter');
+    const tagFilter = document.getElementById('tagFilter');
     const articles = document.querySelectorAll('#blogList .blog-post-preview');
     const emptyState = document.getElementById('emptyState');
 
-    if (!filter || !articles.length) return;
+    if (!articles.length) return;
 
-    // 统计每个标签的文章数
-    const counts = {};
+    // 统计
+    const catCounts = {};
+    const tagCounts = {};
     articles.forEach(art => {
-        const tags = (art.dataset.tags || '').split(',').filter(Boolean);
-        tags.forEach(t => { counts[t] = (counts[t] || 0) + 1; });
+        const cat = art.dataset.cat || '';
+        catCounts[cat] = (catCounts[cat] || 0) + 1;
+        (art.dataset.tags || '').split(',').filter(Boolean).forEach(t => {
+            tagCounts[t] = (tagCounts[t] || 0) + 1;
+        });
     });
 
-    // 在按钮上显示数量
-    filter.querySelectorAll('.tag-btn[data-tag]').forEach(btn => {
-        const tag = btn.dataset.tag;
-        if (tag === 'all') {
-            btn.textContent = `全部 (${articles.length})`;
-        } else if (counts[tag]) {
-            btn.textContent = `${tag} (${counts[tag]})`;
-        }
-    });
+    // 更新分类按钮计数
+    if (catFilter) {
+        catFilter.querySelectorAll('.tag-btn[data-cat]').forEach(btn => {
+            const cat = btn.dataset.cat;
+            if (cat === 'all') {
+                btn.textContent = `全部 (${articles.length})`;
+            } else if (catCounts[cat]) {
+                btn.textContent = `${btn.textContent.split('(')[0].trim()} (${catCounts[cat]})`;
+            }
+        });
+    }
 
-    function filterArticles(selectedTag) {
+    // 更新标签按钮计数
+    if (tagFilter) {
+        tagFilter.querySelectorAll('.tag-btn[data-tag]').forEach(btn => {
+            const tag = btn.dataset.tag;
+            if (tag === 'all') {
+                btn.textContent = `所有标签 (${articles.length})`;
+            } else if (tagCounts[tag]) {
+                btn.textContent = `${tag} (${tagCounts[tag]})`;
+            }
+        });
+    }
+
+    function filterArticles(selectedCat, selectedTag) {
         let visibleCount = 0;
-
         articles.forEach(art => {
+            const artCat = art.dataset.cat || '';
             const artTags = (art.dataset.tags || '').split(',').filter(Boolean);
-            const match = selectedTag === 'all' || artTags.includes(selectedTag);
+            const catMatch = !selectedCat || selectedCat === 'all' || artCat === selectedCat;
+            const tagMatch = !selectedTag || selectedTag === 'all' || artTags.includes(selectedTag);
+            const match = catMatch && tagMatch;
             art.style.display = match ? '' : 'none';
             if (match) visibleCount++;
         });
-
         emptyState.style.display = visibleCount === 0 ? '' : 'none';
     }
 
-    // 点击筛选
-    filter.addEventListener('click', function(e) {
-        const btn = e.target.closest('.tag-btn');
-        if (!btn) return;
+    // 当前筛选状态
+    let activeCat = 'all';
+    let activeTag = 'all';
 
-        // 切换 active
-        if (btn.classList.contains('active')) {
-            // 如果已选中则取消（回到"全部"）
-            btn.classList.remove('active');
-            const allBtn = filter.querySelector('[data-tag="all"]');
-            allBtn.classList.add('active');
-            filterArticles('all');
-            return;
-        }
+    // 分类筛选
+    if (catFilter) {
+        catFilter.addEventListener('click', function(e) {
+            const btn = e.target.closest('.tag-btn');
+            if (!btn) return;
+            catFilter.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeCat = btn.dataset.cat;
+            // 重置标签筛选
+            if (tagFilter) {
+                tagFilter.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+                tagFilter.querySelector('[data-tag="all"]').classList.add('active');
+            }
+            activeTag = 'all';
+            filterArticles(activeCat, activeTag);
+        });
+    }
 
-        filter.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        const tag = btn.dataset.tag;
-        filterArticles(tag);
-    });
+    // 标签筛选
+    if (tagFilter) {
+        tagFilter.addEventListener('click', function(e) {
+            const btn = e.target.closest('.tag-btn');
+            if (!btn) return;
+            if (btn.dataset.tag === 'all') {
+                tagFilter.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeTag = 'all';
+                filterArticles(activeCat, activeTag);
+                return;
+            }
+            tagFilter.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeTag = btn.dataset.tag;
+            filterArticles(activeCat, activeTag);
+        });
+    }
 })();
 </script>
 

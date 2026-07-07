@@ -10,14 +10,17 @@
         <loc>https://hytomz.dev/blog/</loc>
     </url>
     <url>
-        <loc>https://hytomz.dev/blog/hello-world/</loc>
+        <loc>https://hytomz.dev/blog/公告/</loc>
+    </url>
+    <url>
+        <loc>https://hytomz.dev/blog/公告/hello-world/</loc>
         <lastmod>2026-07-07</lastmod>
     </url>
     <url>
-        <loc>https://hytomz.dev/blog/page/1/</loc>
+        <loc>https://hytomz.dev/blog/技术/</loc>
     </url>
     <url>
-        <loc>https://hytomz.dev/blog/remove-exceptions/</loc>
+        <loc>https://hytomz.dev/blog/技术/remove-exceptions/</loc>
         <lastmod>2026-07-07</lastmod>
     </url>
     <url>
