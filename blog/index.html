@@ -186,6 +186,10 @@
 
     if (!articles.length) return;
 
+    // 当前筛选状态（必须在 updateCounts 之前声明）
+    let activeCat = 'all';
+    let activeTag = 'all';
+
     // 统计
     const catCounts = {};
     const tagCounts = {};
@@ -197,28 +201,52 @@
         });
     });
 
-    // 更新分类按钮计数
-    if (catFilter) {
-        catFilter.querySelectorAll('.tag-btn[data-cat]').forEach(btn => {
-            const cat = btn.dataset.cat;
-            if (cat === 'all') {
-                btn.textContent = `全部 (${articles.length})`;
-            } else if (catCounts[cat]) {
-                btn.textContent = `${btn.textContent.split('(')[0].trim()} (${catCounts[cat]})`;
-            }
-        });
-    }
+    // 初始更新计数（代替上面重复的统计逻辑）
+    updateCounts();
 
-    // 更新标签按钮计数
-    if (tagFilter) {
-        tagFilter.querySelectorAll('.tag-btn[data-tag]').forEach(btn => {
-            const tag = btn.dataset.tag;
-            if (tag === 'all') {
-                btn.textContent = `所有标签 (${articles.length})`;
-            } else if (tagCounts[tag]) {
-                btn.textContent = `${tag} (${tagCounts[tag]})`;
-            }
+    function updateCounts() {
+        // 按当前分类筛选重新统计标签数量
+        const newTagCounts = {};
+        let totalInCat = 0;
+        articles.forEach(art => {
+            const artCat = art.dataset.cat || '';
+            const catMatch = activeCat === 'all' || artCat === activeCat;
+            if (!catMatch) return;
+            totalInCat++;
+            (art.dataset.tags || '').split(',').filter(Boolean).forEach(t => {
+                newTagCounts[t] = (newTagCounts[t] || 0) + 1;
+            });
         });
+
+        // 更新标签按钮数量
+        if (tagFilter) {
+            const allBtn = tagFilter.querySelector('[data-tag="all"]');
+            allBtn.textContent = `所有标签 (${totalInCat})`;
+            if (activeTag !== 'all' && !newTagCounts[activeTag]) {
+                // 当前选中的标签在分类下没有文章，重置
+                tagFilter.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+                allBtn.classList.add('active');
+                activeTag = 'all';
+            }
+            tagFilter.querySelectorAll('.tag-btn[data-tag]:not([data-tag="all"])').forEach(btn => {
+                const tag = btn.dataset.tag;
+                const count = newTagCounts[tag] || 0;
+                btn.textContent = count > 0 ? `${tag} (${count})` : tag;
+                btn.style.display = count > 0 ? '' : 'none';
+            });
+        }
+
+        // 更新分类按钮数量（不变，始终显示全局）
+        if (catFilter) {
+            catFilter.querySelectorAll('.tag-btn[data-cat]').forEach(btn => {
+                const cat = btn.dataset.cat;
+                if (cat === 'all') {
+                    btn.textContent = `全部 (${articles.length})`;
+                } else if (catCounts[cat]) {
+                    btn.textContent = `${btn.textContent.split('(')[0].trim()} (${catCounts[cat]})`;
+                }
+            });
+        }
     }
 
     function filterArticles(selectedCat, selectedTag) {
@@ -233,11 +261,8 @@
             if (match) visibleCount++;
         });
         emptyState.style.display = visibleCount === 0 ? '' : 'none';
+        updateCounts();
     }
-
-    // 当前筛选状态
-    let activeCat = 'all';
-    let activeTag = 'all';
 
     // 分类筛选
     if (catFilter) {
