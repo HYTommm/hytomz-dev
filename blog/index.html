@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="/style/sidebar.css">
     <link rel="stylesheet" href="/style/main.css">
     
+<link rel="stylesheet" href="/style/blog.css">
+
 </head>
 <body>
     <nav class="navbar">
@@ -54,7 +56,6 @@
     
     
     
-    
         
             
             
@@ -77,117 +78,130 @@
     
 
     
-    
-    <section class="tag-group">
-        <h2 class="tag-heading">公告</h2>
+    <div class="tag-filter" id="tagFilter">
+        <button class="tag-btn active" data-tag="all">全部</button>
         
-            
-            <article class="blog-post-preview">
-                <h3><a href="/blog/hello-world/">Hello World</a></h3>
-                <div class="blog-meta">
-                    <time>2026-07-07</time>
-                    <span class="tags">
-                        
-                        <span class="tag">公告</span>
-                        
-                    </span>
-                </div>
+        <button class="tag-btn" data-tag="公告">公告</button>
+        
+        <button class="tag-btn" data-tag="技术">技术</button>
+        
+        <button class="tag-btn" data-tag="Godot">Godot</button>
+        
+        <button class="tag-btn" data-tag="C++">C++</button>
+        
+    </div>
+
+    
+    <div id="blogList">
+        
+        <article class="blog-post-preview" data-tags="公告">
+            <h2><a href="/blog/hello-world/">Hello World</a></h2>
+            <div class="blog-meta">
+                <time>2026-07-07</time>
                 
-                <a href="/blog/hello-world/" class="read-more">阅读全文 →</a>
-            </article>
-            
-        
-            
-        
-    </section>
-    
-    <section class="tag-group">
-        <h2 class="tag-heading">技术</h2>
-        
-            
-        
-            
-            <article class="blog-post-preview">
-                <h3><a href="/blog/remove-exceptions/">移除 C++ 异常：swf_reader 移植中的 -fno-exceptions 兼容</a></h3>
-                <div class="blog-meta">
-                    <time>2026-07-07</time>
-                    <span class="tags">
-                        
-                        <span class="tag">技术</span>
-                        
-                        <span class="tag">Godot</span>
-                        
-                        <span class="tag">C++</span>
-                        
-                    </span>
-                </div>
+                <span class="tags">
+                    
+                    <span class="tag">公告</span>
+                    
+                </span>
                 
-                <a href="/blog/remove-exceptions/" class="read-more">阅读全文 →</a>
-            </article>
+            </div>
             
+            <a href="/blog/hello-world/" class="read-more">阅读全文 →</a>
+        </article>
         
-    </section>
-    
-    <section class="tag-group">
-        <h2 class="tag-heading">Godot</h2>
-        
-            
-        
-            
-            <article class="blog-post-preview">
-                <h3><a href="/blog/remove-exceptions/">移除 C++ 异常：swf_reader 移植中的 -fno-exceptions 兼容</a></h3>
-                <div class="blog-meta">
-                    <time>2026-07-07</time>
-                    <span class="tags">
-                        
-                        <span class="tag">技术</span>
-                        
-                        <span class="tag">Godot</span>
-                        
-                        <span class="tag">C++</span>
-                        
-                    </span>
-                </div>
+        <article class="blog-post-preview" data-tags="技术,Godot,C++">
+            <h2><a href="/blog/remove-exceptions/">移除 C++ 异常：swf_reader 移植中的 -fno-exceptions 兼容</a></h2>
+            <div class="blog-meta">
+                <time>2026-07-07</time>
                 
-                <a href="/blog/remove-exceptions/" class="read-more">阅读全文 →</a>
-            </article>
-            
-        
-    </section>
-    
-    <section class="tag-group">
-        <h2 class="tag-heading">C++</h2>
-        
-            
-        
-            
-            <article class="blog-post-preview">
-                <h3><a href="/blog/remove-exceptions/">移除 C++ 异常：swf_reader 移植中的 -fno-exceptions 兼容</a></h3>
-                <div class="blog-meta">
-                    <time>2026-07-07</time>
-                    <span class="tags">
-                        
-                        <span class="tag">技术</span>
-                        
-                        <span class="tag">Godot</span>
-                        
-                        <span class="tag">C++</span>
-                        
-                    </span>
-                </div>
+                <span class="tags">
+                    
+                    <span class="tag">技术</span>
+                    
+                    <span class="tag">Godot</span>
+                    
+                    <span class="tag">C++</span>
+                    
+                </span>
                 
-                <a href="/blog/remove-exceptions/" class="read-more">阅读全文 →</a>
-            </article>
+            </div>
             
+            <a href="/blog/remove-exceptions/" class="read-more">阅读全文 →</a>
+        </article>
         
-    </section>
+    </div>
+
     
+    <p id="emptyState" class="empty-state" style="display: none;">该分类下暂无文章</p>
 
     
     
 
     
 </section>
+
+<script>
+(function() {
+    const filter = document.getElementById('tagFilter');
+    const articles = document.querySelectorAll('#blogList .blog-post-preview');
+    const emptyState = document.getElementById('emptyState');
+
+    if (!filter || !articles.length) return;
+
+    // 统计每个标签的文章数
+    const counts = {};
+    articles.forEach(art => {
+        const tags = (art.dataset.tags || '').split(',').filter(Boolean);
+        tags.forEach(t => { counts[t] = (counts[t] || 0) + 1; });
+    });
+
+    // 在按钮上显示数量
+    filter.querySelectorAll('.tag-btn[data-tag]').forEach(btn => {
+        const tag = btn.dataset.tag;
+        if (tag === 'all') {
+            btn.textContent = `全部 (${articles.length})`;
+        } else if (counts[tag]) {
+            btn.textContent = `${tag} (${counts[tag]})`;
+        }
+    });
+
+    function filterArticles(selectedTag) {
+        let visibleCount = 0;
+
+        articles.forEach(art => {
+            const artTags = (art.dataset.tags || '').split(',').filter(Boolean);
+            const match = selectedTag === 'all' || artTags.includes(selectedTag);
+            art.style.display = match ? '' : 'none';
+            if (match) visibleCount++;
+        });
+
+        emptyState.style.display = visibleCount === 0 ? '' : 'none';
+    }
+
+    // 点击筛选
+    filter.addEventListener('click', function(e) {
+        const btn = e.target.closest('.tag-btn');
+        if (!btn) return;
+
+        // 切换 active
+        if (btn.classList.contains('active')) {
+            // 如果已选中则取消（回到"全部"）
+            btn.classList.remove('active');
+            const allBtn = filter.querySelector('[data-tag="all"]');
+            allBtn.classList.add('active');
+            filterArticles('all');
+            return;
+        }
+
+        filter.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const tag = btn.dataset.tag;
+        filterArticles(tag);
+    });
+})();
+</script>
 
     </div>
 </body>

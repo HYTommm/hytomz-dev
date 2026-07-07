@@ -1,0 +1,134 @@
+/* 博客页面 - 标签筛选 */
+.tag-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 20px 0 30px 0;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.tag-btn {
+    padding: 6px 16px;
+    border: 1px solid #14867d;
+    border-radius: 20px;
+    background: transparent;
+    color: #14867d;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    user-select: none;
+}
+
+.tag-btn:hover {
+    background: #14867d10;
+}
+
+.tag-btn.active {
+    background: #14867d;
+    color: #fff;
+    border-color: #14867d;
+}
+
+.tag-btn.active:hover {
+    background: #0f6b63;
+}
+
+/* 文章预览 */
+.blog-post-preview {
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+    transition: opacity 0.15s ease;
+}
+
+.blog-post-preview h2 {
+    margin: 0 0 8px 0;
+    font-size: 1.4em;
+}
+
+.blog-post-preview h2 a {
+    color: #333;
+    text-decoration: none;
+}
+
+.blog-post-preview h2 a:hover {
+    color: #14867d;
+}
+
+.blog-meta {
+    font-size: 0.9em;
+    color: #888;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.tags {
+    display: inline-flex;
+    gap: 6px;
+}
+
+.tag {
+    display: inline-block;
+    background: #f0f0f0;
+    color: #555;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+}
+
+.blog-summary {
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 10px;
+}
+
+.blog-summary p {
+    margin: 0;
+}
+
+.read-more {
+    color: #14867d;
+    text-decoration: none;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.read-more:hover {
+    text-decoration: underline;
+}
+
+.empty-state {
+    text-align: center;
+    color: #999;
+    padding: 40px 0;
+    font-size: 1.1em;
+}
+
+/* 分页导航 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.pagination a {
+    color: #14867d;
+    text-decoration: none;
+}
+
+.pagination a:hover {
+    text-decoration: underline;
+}
+
+.pagination span {
+    color: #888;
+    font-size: 0.9em;
+}
