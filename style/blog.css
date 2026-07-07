@@ -2,19 +2,17 @@
 .tag-filter {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin: 20px 0 30px 0;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #e0e0e0;
+    gap: 4px;
+    margin: 0 0 6px 0;
 }
 
 .tag-btn {
-    padding: 6px 16px;
+    padding: 3px 12px;
     border: 1px solid #14867d;
-    border-radius: 20px;
+    border-radius: 14px;
     background: transparent;
     color: #14867d;
-    font-size: 0.9em;
+    font-size: 0.82em;
     cursor: pointer;
     transition: all 0.15s ease;
     font-family: inherit;
@@ -37,14 +35,18 @@
 
 /* 文章预览 */
 .blog-post-preview {
-    padding: 20px 0;
+    padding: 14px 0;
     border-bottom: 1px solid #eee;
     transition: opacity 0.15s ease;
 }
 
+.blog-post-preview:first-child {
+    padding-top: 4px;
+}
+
 .blog-post-preview h2 {
-    margin: 0 0 8px 0;
-    font-size: 1.4em;
+    margin: 0 0 4px 0;
+    font-size: 1.2em;
 }
 
 .blog-post-preview h2 a {
@@ -57,12 +59,12 @@
 }
 
 .blog-meta {
-    font-size: 0.9em;
+    font-size: 0.82em;
     color: #888;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
@@ -93,8 +95,9 @@
 
 .blog-summary {
     color: #555;
-    line-height: 1.7;
-    margin-bottom: 10px;
+    line-height: 1.6;
+    margin-bottom: 6px;
+    font-size: 0.9em;
 }
 
 .blog-summary p {
