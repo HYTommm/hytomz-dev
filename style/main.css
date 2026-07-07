@@ -199,3 +199,53 @@
     max-width: 800px;
     margin: 0 auto;
 }
+
+/* 标签分组 */
+.tag-group {
+    margin: 32px 0;
+    padding: 0 0 8px 0;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tag-group:last-child {
+    border-bottom: none;
+}
+
+.tag-heading {
+    font-size: 1.1em !important;
+    color: #14867d;
+    border-left: 4px solid #14867d;
+    padding-left: 12px;
+    margin: 0 0 16px 0 !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tag-heading::before {
+    content: "# ";
+    opacity: 0.5;
+}
+
+/* 标签云（/tags/ 页面） */
+.tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 24px 0;
+}
+
+.tag-cloud .tag {
+    font-size: 0.95em;
+    padding: 6px 14px;
+    background: #e8f5e9;
+    color: #14867d;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.tag-cloud .tag:hover {
+    background: #14867d;
+    color: white;
+    transform: translateY(-2px);
+}
