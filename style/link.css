@@ -1,0 +1,27 @@
+a {
+    color: #2457b6;
+    /* 蓝色 */
+    text-decoration: none;
+    /* 去除下划线 */
+    transition: color 0.3s ease;
+    /* 颜色过渡效果 */
+}
+
+a:visited {
+    color: #9b59b6;
+    /* 已访问链接为紫色 */
+}
+
+a:hover {
+    color: #338fcc;
+    /* 悬停时深蓝色 */
+    text-decoration: underline;
+    /* 悬停时添加下划线 */
+}
+
+a:active {
+    /* 点击时红色 */
+    color: #e24432;
+    /* 悬停时不添加下划线 */
+    text-decoration: none;
+}

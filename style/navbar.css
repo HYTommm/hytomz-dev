@@ -1,0 +1,105 @@
+:root {
+    /* 颜色变量 */
+    --primary-color: #14867d;
+    --secondary-color: #21994f;
+    --link-color: #2457b6;
+    --link-visited: #9b59b6;
+    --link-hover: #338fcc;
+    --link-active: #e24432;
+    --navbar-text: rgb(237, 240, 255);
+    --navbar-hover: #3c369c;
+    --sidebar-bg: #f8f9fa;
+    --sidebar-hover: #e9ecef;
+
+    /* 尺寸变量 */
+    --navbar-height: 56px;
+    --navbar-padding: 0 60px;
+    --content-padding-top: 64px;
+    --sidebar-width: 250px;
+}
+
+/* 导航栏样式
+           使用flex布局实现水平导航
+           背景使用渐变效果 */
+.navbar {
+    /* 居中 */
+    /*stify-content: center;*/
+    width: 100%;
+    /* 占据全部宽度 */
+    background: linear-gradient(90deg, #14867d 0%, #21994f 100%);
+    /* 从左到右的渐变背景 */
+    display: flex;
+    /* 使用flex布局 */
+    align-items: center;
+    /* 垂直居中 */
+    padding: 0 60px;
+    /* 左右内边距 */
+    height: 56px;
+    /* 固定高度 */
+    box-sizing: border-box;
+    /* 盒模型计算方式 */
+    position: fixed;
+    /* 固定定位 */
+    top: 0;
+    /* 固定在顶部 */
+    left: 0;
+    /* 固定在左侧 */
+    z-index: 1000;
+    /* 确保导航栏在最上层 */
+}
+
+/* 导航栏中的无序列表样式 */
+.navbar ul {
+    list-style: none;
+    /* 去除列表标记 */
+    margin: 0;
+    /* 去除外边距 */
+    padding: 0;
+    /* 去除内边距 */
+    display: flex;
+    /* 使用flex布局使列表项水平排列 */
+}
+
+/* 导航栏列表项样式 */
+.navbar li {
+    margin-right: 64px;
+    /* 列表项之间的右边距 */
+}
+
+/* 最后一个列表项去除右边距 */
+.navbar li:last-child {
+    margin-right: 0;
+}
+
+/* 导航链接样式 */
+.navbar a {
+    color: rgb(237, 240, 255);
+    /* 文字颜色 */
+    text-decoration: none;
+    /* 去除下划线 */
+    font-size: 18px;
+    /* 字体大小 */
+    transition: opacity 0.2s;
+    /* 透明度过渡效果 */
+}
+
+/* 导航链接悬停效果 */
+.navbar a:hover {
+    color: #3c369c;
+    /* 文字颜色变浅 */
+    /* 文字加粗 */
+    font-weight: bold;
+    opacity: 0.7;
+    /* 鼠标悬停时降低不透明度 */
+}
+
+.navbar a:visited {
+    color: #f8f9fa
+}
+
+.navbar a.active {
+    font-weight: bold;
+    opacity: 1 !important;
+    border-bottom: 2px solid white;
+    padding-bottom: 4px;
+}

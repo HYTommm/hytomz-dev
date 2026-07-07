@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://hytomz.dev/</loc>
+    </url>
+    <url>
+        <loc>https://hytomz.dev/about/</loc>
+    </url>
+    <url>
+        <loc>https://hytomz.dev/blog/</loc>
+    </url>
+    <url>
+        <loc>https://hytomz.dev/blog/hello-world/</loc>
+        <lastmod>2026-07-07</lastmod>
+    </url>
+    <url>
+        <loc>https://hytomz.dev/blog/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://hytomz.dev/blog/remove-exceptions/</loc>
+        <lastmod>2026-07-07</lastmod>
+    </url>
+    <url>
+        <loc>https://hytomz.dev/contact/</loc>
+    </url>
+    <url>
+        <loc>https://hytomz.dev/projects/</loc>
+    </url>
+</urlset>
