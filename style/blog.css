@@ -188,3 +188,222 @@
     color: #888;
     font-size: 0.9em;
 }
+
+/* ======= 两栏布局（分类列表 + 文章） ======= */
+
+.blog-main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-top: 8px;
+}
+
+.blog-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 2px solid #14867d;
+    padding-bottom: 6px;
+    margin-bottom: 16px;
+}
+
+.blog-main .blog-title {
+    margin: 0 !important;
+    border-bottom: none !important;
+    padding-bottom: 0;
+    line-height: 1.3;
+}
+
+.blog-body {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+}
+
+.blog-sidebar {
+    width: 160px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+}
+
+.blog-content {
+    flex: 1;
+    min-width: 0;
+}
+
+/* 侧边栏标题 */
+.sidebar-title {
+    font-size: 0.82em;
+    color: #999;
+    letter-spacing: 1px;
+    margin: 0 0 8px 0;
+    padding: 0 12px;
+    text-transform: uppercase;
+}
+
+.sidebar-section {
+    margin-bottom: 24px;
+}
+
+/* 分类按钮（竖排） */
+.cat-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 12px;
+    cursor: pointer;
+    border-radius: 6px;
+    color: #333;
+    font-size: 0.9em;
+    transition: background 0.15s;
+    user-select: none;
+}
+
+.cat-btn:hover {
+    background: #14867d0d;
+}
+
+.cat-btn.active {
+    background: #14867d;
+    color: #fff;
+}
+
+.cat-count {
+    font-size: 0.82em;
+    color: #bbb;
+    min-width: 20px;
+    text-align: right;
+}
+
+.cat-btn.active .cat-count {
+    color: rgba(255,255,255,0.7);
+}
+
+/* 标签（侧边栏版本，换行包裹） */
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 0 12px;
+}
+
+.tag-list .tag-btn {
+    padding: 3px 9px;
+    font-size: 0.78em;
+}
+
+/* ======= 手机适配 ======= */
+@media (max-width: 768px) {
+    .blog-main {
+        max-width: 100%;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .blog-body {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .blog-sidebar {
+        width: 100%;
+        position: static;
+        margin-bottom: 8px;
+    }
+
+    .sidebar-section {
+        margin-bottom: 8px;
+    }
+
+    .sidebar-title {
+        display: none;
+    }
+
+    /* 分类变回横向滚动 */
+    #catFilter {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 6px;
+        overflow-x: auto;
+        padding: 0 0 6px 0;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+
+    #catFilter::-webkit-scrollbar {
+        height: 3px;
+    }
+
+    #catFilter::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 3px;
+    }
+
+    .cat-btn {
+        white-space: nowrap;
+        flex-shrink: 0;
+        padding: 4px 14px;
+        border: 1px solid #14867d;
+        border-radius: 14px;
+        font-size: 0.85em;
+    }
+
+    .cat-btn.active {
+        background: #14867d;
+        color: #fff;
+    }
+
+    .cat-count {
+        margin-left: 4px;
+        min-width: auto;
+    }
+
+    /* 标签在手机上也横向滚动 */
+    .tag-list {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 6px;
+        padding: 0 0 4px 0;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tag-list::-webkit-scrollbar {
+        height: 3px;
+    }
+
+    .tag-list::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 3px;
+    }
+
+    /* 手机端字号和间距 */
+    .blog-title {
+        font-size: 1.5em;
+    }
+
+    .search-bar input {
+        width: 140px;
+        font-size: 0.8em;
+        padding: 5px 10px;
+    }
+
+    .search-bar input:focus {
+        width: 200px;
+    }
+
+    .blog-post-preview {
+        padding: 10px 0;
+    }
+
+    .blog-post-preview h2 {
+        font-size: 1em;
+    }
+
+    .blog-summary {
+        font-size: 0.85em;
+    }
+
+    .blog-meta {
+        font-size: 0.78em;
+    }
+}
