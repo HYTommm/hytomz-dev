@@ -220,6 +220,7 @@
     width: 170px;
     max-height: calc(100vh - 100px);
     overflow-y: auto;
+    margin-top: 8px;
 }
 
 .blog-header {
@@ -316,6 +317,7 @@
         width: auto;
         max-height: none;
         margin-bottom: 8px;
+        margin-top: 0;
     }
 
     .sidebar-section {

@@ -10,6 +10,13 @@
         <loc>https://hytomz.dev/blog/</loc>
     </url>
     <url>
+        <loc>https://hytomz.dev/blog/Swf渲染/</loc>
+    </url>
+    <url>
+        <loc>https://hytomz.dev/blog/Swf渲染/1-intro/</loc>
+        <lastmod>2026-07-08</lastmod>
+    </url>
+    <url>
         <loc>https://hytomz.dev/blog/公告/</loc>
     </url>
     <url>
@@ -46,5 +53,8 @@
     </url>
     <url>
         <loc>https://hytomz.dev/tags/ji-shu/</loc>
+    </url>
+    <url>
+        <loc>https://hytomz.dev/tags/swf/</loc>
     </url>
 </urlset>
