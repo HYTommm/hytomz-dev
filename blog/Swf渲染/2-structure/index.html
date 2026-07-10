@@ -36,13 +36,28 @@
 <ul>
 
     <li class="toc-item toc-level-1">
-        <a href="#swfxuan-ran-zhi-ru-he-jie-xi-swfwen-jian">Swf渲染之——如何解析Swf文件</a>
+        <a href="#swfxuan-ran-zhi-wen-jian-jie-gou">Swf渲染之——文件结构</a>
         
         
 <ul>
 
     <li class="toc-item toc-level-2">
-        <a href="#1-swfwen-jian-jie-gou">1. Swf文件结构</a>
+        <a href="#wen-jian-tou">文件头</a>
+        
+    </li>
+
+    <li class="toc-item toc-level-2">
+        <a href="#biao-qian">标签</a>
+        
+    </li>
+
+    <li class="toc-item toc-level-2">
+        <a href="#setbackgroundcolortag">SetBackgroundColorTag</a>
+        
+    </li>
+
+    <li class="toc-item toc-level-2">
+        <a href="#zhu">注</a>
         
     </li>
 
@@ -56,8 +71,7 @@
 </div>
 
 <section class="main">
-    <h1 id="swfxuan-ran-zhi-ru-he-jie-xi-swfwen-jian">Swf渲染之——如何解析Swf文件</h1>
-<h2 id="1-swfwen-jian-jie-gou">1. Swf文件结构</h2>
+    <h1 id="swfxuan-ran-zhi-wen-jian-jie-gou">Swf渲染之——文件结构</h1>
 <p>上一节我们下载了Swf文件，现在我们来尝试阅读它，使用ffd(JPEXS Free Flash Decompiler)来打开这个文件，我们可以看到Swf文件的结构如下：</p>
 <p><img src="/swf/images/20260708-194843.png" alt="Swf文件结构" /></p>
 <p>其中有</p>
@@ -74,8 +88,96 @@
 <p><img src="/swf/images/20260708-201418.png" alt="Swf文件16进制转储" /></p>
 <p>我们可以看到这样的画面</p>
 <p><img src="/swf/images/20260708-201848.png" alt="Swf文件标签序列" /></p>
+<h2 id="wen-jian-tou">文件头</h2>
 <p>可以发现，swf文件内部首先是几条header信息，被称为文件头，但是在具体的读取的时候，需要注意文件头是被分割的，format，version，file_length被我称为SwfFileInfo，frame_size，frame_rate，frame_count被我称为SwfHeader，如图</p>
 <p><img src="/swf/images/20260708-211306.png" alt="Swf文件头" /></p>
+<p>其中</p>
+<ul>
+<li>
+<p><code>format</code>：文件格式，在官方文档中，被定义为3个Signature，每个Signature都是一个<code>UI8</code>，即一个无符号字节，存储一个字符。这里最重要的是第一个Sig，标志了这个swf的压缩信息</p>
+<ul>
+<li>'F'：表示文件是未压缩的</li>
+<li>'C'：表示文件是使用Zlib压缩的</li>
+<li>'Z'：表示文件是使用LZMA压缩的</li>
+</ul>
+<p>后面的两个则永远是'W'和'S'，不重要</p>
+</li>
+<li>
+<p><code>version</code>：版本号，也是<code>UI8</code>，直接存储数值而不是字符，0x06表示第6版</p>
+</li>
+<li>
+<p><code>file_length</code>：文件长度，<code>UI32</code>，存储文件的总字节数，用于和解压之后的文件长度进行对比，验证文件是否完整</p>
+</li>
+<li>
+<p><code>frame_size</code>：帧大小，<code>RECT</code><sup class="footnote-reference"><a href="#1">1</a></sup>，存储帧的宽度和高度，单位是Twips，<code>1 像素 = 20 Twips</code></p>
+</li>
+<li>
+<p><code>frame_rate</code>：帧率，<code>UI16</code>，存储帧率，单位是帧/秒</p>
+</li>
+<li>
+<p><code>frame_count</code>：舞台帧数，<code>UI16</code></p>
+</li>
+</ul>
+<h2 id="biao-qian">标签</h2>
+<p>之后就是<code>元信息标签</code>和一系列<code>定义标签</code>，这些标签都继承于Tag，符合Tag的基本格式。</p>
+<p>在官方定义中，Tag是一个基类，每个Tag都有一个Header，定义如下</p>
+<p><img src="/swf/images/20260710-191519.png" alt="Tag基类" /></p>
+<p>要注意，虽然<code>TagTagCodeAndLength</code>看起来像两个字段，但是存储方式是<code>UI16</code>，必须一次读完然后移位操作，这是因为swf使用小端序，在硬盘中低位在前</p>
+<ul>
+<li><code>TagCode</code>：高10位，表示标签的类型</li>
+<li><code>TagLength</code>：低6位，表示标签的长度</li>
+<li>然后是一个假想的<code>TagData</code>：标签的具体数据，长度是<code>TagLength</code>，单位是字节，在不同的Tag中对应不同的具体字段</li>
+</ul>
+<p>聪明的小伙伴肯定会想：这6位的<code>TagLength</code>也太短了，最多也就63，tag一大不就无法描述了么？</p>
+<p>所以！SWF的Tag Header还有另一种格式！如下：</p>
+<p><img src="/swf/images/20260710-192608.png" alt="LongTag" /></p>
+<p>这种长类型有一个专门的<code>Length</code>字段，<code>UI32</code>，能存储整整2GB的标签长度。</p>
+<div class="qa-box">
+    <div class="title">🤔 别吵，我在烧烤</div>
+    <div class="content">
+        解析的时候怎么判断是哪一种？<br>
+        <span style="color: #64748b; font-size: 0.95em;">
+            —— 根据<code>TagLength</code>的值是否为极限值来判断，如果<code>TagLength</code>的值是63，则认为是长Tag，需要进一步读取<code>Length</code>字段作为真正的长度
+        </span>
+    </div>
+</div>
+<h2 id="setbackgroundcolortag">SetBackgroundColorTag</h2>
+<p>让我们来实战演练一下吧，让我们看看第二个<sup class="footnote-reference"><a href="#2">2</a></sup>Tag在16进制下长什么样子：</p>
+<p><img src="/swf/images/20260710-212456.png" alt="ABCT_Hex" /></p>
+<p>一串16进制数字， <span style="color: red;">43 02</span> <span style="color: Blue;">99 99 99</span></p>
+<p>其中 <span style="color: red;">43 02</span> 是 Header部分，由于swf用的是小端序，所以真实的值为 02 43</p>
+<p>换算成二进制就是 <span style="color: Orange;">0000 0010 01</span><span style="color: Green;">00 0011</span></p>
+<p>高10位换算回10进制是9，也就是<code>SetBackgroundColorTag</code>的枚举值</p>
+<p>于是我们就确定了这个Tag的具体类型为<code>SetBackgroundColorTag</code>，先看看官方定义：</p>
+<p><img src="/swf/images/20260710-211435.png" alt="SetBackgroundColorTag" /></p>
+<p>很明显，这个Tag很简单。除了<code>TagHeader</code>只有一个固定的<code>RGB</code><sup class="footnote-reference"><a href="#3">3</a></sup>值，那么剩下的<span style="color: Blue;">99 99 99</span>也就很好理解了，一个<code>RGB(0x99, 0x99, 0x99)</code>的结构体。换算成10进制，就是<code>RGB(153, 153, 153)</code></p>
+<p>看一眼FFD的结果：</p>
+<p><img src="/swf/images/20260710-214119.png" alt="FFD结果" /></p>
+<p>果然，分毫不差！</p>
+<hr />
+<h2 id="zhu">注</h2>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p><code>RECT</code>是一个变长结构体，定义如下
+<img src="/swf/images/20260710-190034.png" alt="RECT结构体" /></p>
+</div>
+<p>其中</p>
+<ul>
+<li><code>Nbits</code>是一个很关键的字段，表示后续字段的bits长度。本身的长度是<code>UB[5]</code>，也就是5个bits
+<ul>
+<li>如果<code>Nbits=5</code>，那么后续字段的bits长度就是5，<code>Xmin</code>，<code>Xmax</code>，<code>Ymin</code>，<code>Ymax</code>每一个的长度就是5，一共是20bits，加上Nbits=5，结构体的长度总共是<code>20+5=25 bits</code>。</li>
+<li>在示例文件中<code>Nbits=16</code>, 所以<code>Xmin</code>，<code>Xmax</code>，<code>Ymin</code>，<code>Ymax</code>的长度是16bits，一共是64bits，整个是<code>64+5=69 bits</code></li>
+</ul>
+</li>
+<li>Xmin，Xmax，Ymin，Ymax：四个<code>SB[Nbits]</code>，表示帧的最小和最大坐标值，单位是Twips</li>
+</ul>
+<div class="footnote-definition" id="2"><sup class="footnote-definition-label">2</sup>
+<p>之所以不用<code>FileAttributesTag</code>是因为这个Tag在动画渲染方面用处不大且太复杂</p>
+</div>
+<div class="footnote-definition" id="3"><sup class="footnote-definition-label">3</sup>
+<p><code>RGB</code>是一种颜色的存储方式，用红绿蓝三个通道表示颜色，不支持透明度，在swf中定义如下
+<img src="/swf/images/20260710-214441.png" alt="RGB结构体" />
+每个通道一个字节，范围<code>0~255</code>，共3字节，24bit。</p>
+</div>
 
 </section>
 <script src="/script/toc-spy.js"></script>
