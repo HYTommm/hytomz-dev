@@ -147,8 +147,8 @@
 <p>一串16进制数字， <span style="color: red;">43 02</span> <span style="color: Blue;">99 99 99</span></p>
 <p>其中 <span style="color: red;">43 02</span> 是 Header部分，由于swf用的是小端序，所以真实的值为 02 43</p>
 <p>换算成二进制就是 <span style="color: Orange;">0000 0010 01</span><span style="color: Green;">00 0011</span></p>
-<p>高10位换算回10进制是9，也就是<code>SetBackgroundColorTag</code>的枚举值
-低十位换算成10进制是3，<code>3 &lt; 63</code>，也就是说后面还有3个字节</p>
+<p>高10位换算回10进制是9，也就是<code>SetBackgroundColorTag</code>的枚举值</p>
+<p>低十位换算成10进制是3，<code>3 &lt; 63</code>，也就是说后面还有3个字节</p>
 <p>于是我们就确定了这个Tag的具体类型为<code>SetBackgroundColorTag</code>，先看看官方定义：</p>
 <p><img src="/swf/images/20260710-211435.png" alt="SetBackgroundColorTag" /></p>
 <p>很明显，这个Tag很简单。除了<code>TagHeader</code>只有一个固定的<code>RGB</code><sup class="footnote-reference"><a href="#3">3</a></sup>值，其长度正好与之前读到的3相等。那么剩下的<span style="color: Blue;">99 99 99</span>也就很好理解了：</p>
